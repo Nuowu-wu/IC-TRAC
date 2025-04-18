@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Info</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .data-card {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-300 min-h-screen p-4">
+    <div class="container mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 访客信息 -->
+            <div class="data-card rounded-lg p-4">
+                <h2 class="text-xl mb-4 text-blue-400">访客数据</h2>
+                <div id="visitors-data" class="space-y-2">
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                </div>
+            </div>
+
+            <!-- 设备信息 -->
+            <div class="data-card rounded-lg p-4">
+                <h2 class="text-xl mb-4 text-green-400">设备信息</h2>
+                <div id="device-data" class="space-y-2">
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                </div>
+            </div>
+
+            <!-- 网络信息 -->
+            <div class="data-card rounded-lg p-4">
+                <h2 class="text-xl mb-4 text-purple-400">网络数据</h2>
+                <div id="network-data" class="space-y-2">
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                </div>
+            </div>
+
+            <!-- 实时监控 -->
+            <div class="data-card rounded-lg p-4">
+                <h2 class="text-xl mb-4 text-red-400">实时监控</h2>
+                <div id="live-data" class="space-y-2">
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                    <div class="animate-pulse bg-gray-700 h-4 rounded"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/monitor');
+                const data = await response.json();
+                
+                // 更新访客数据
+                document.getElementById('visitors-data').innerHTML = `
+                    <p>IP: ${data.ip}</p>
+                    <p>位置: ${data.location || '未知'}</p>
+                    <p>设备: ${data.userAgent}</p>
+                    <p>访问时间: ${new Date(data.timestamp).toLocaleString()}</p>
+                `;
+
+                // 更新设备信息
+                document.getElementById('device-data').innerHTML = `
+                    <p>操作系统: ${data.os}</p>
+                    <p>浏览器: ${data.browser}</p>
+                    <p>屏幕: ${data.screen.width}x${data.screen.height}</p>
+                    <p>电池: ${data.battery || '未知'}</p>
+                `;
+
+                // 更新网络信息
+                document.getElementById('network-data').innerHTML = `
+                    <p>连接类型: ${data.connection || '未知'}</p>
+                    <p>信号强度: ${data.signal || '未知'}</p>
+                    <p>下行速度: ${data.downloadSpeed || '未知'}</p>
+                    <p>上行速度: ${data.uploadSpeed || '未知'}</p>
+                `;
+
+                // 更新实时数据
+                document.getElementById('live-data').innerHTML = `
+                    <p>CPU使用率: ${data.cpu || '未知'}</p>
+                    <p>内存使用: ${data.memory || '未知'}</p>
+                    <p>存储空间: ${data.storage || '未知'}</p>
+                    <p>进程数: ${data.processes || '未知'}</p>
+                `;
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // 初始化数据
+        fetchData();
+
+        // 每5秒更新一次数据
+        setInterval(fetchData, 5000);
+
+        // 获取更多设备信息
+        async function getDeviceInfo() {
+            try {
+                if ('getBattery' in navigator) {
+                    const battery = await navigator.getBattery();
+                    console.log('Battery:', battery.level * 100 + '%');
+                }
+
+                if ('connection' in navigator) {
+                    const connection = navigator.connection;
+                    console.log('Network:', connection.effectiveType);
+                }
+
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => console.log('Location:', position.coords),
+                        error => console.log('Location error:', error)
+                    );
+                }
+            } catch (error) {
+                console.error('Device info error:', error);
+            }
+        }
+
+        getDeviceInfo();
+    </script>
+</body>
+</html> 
